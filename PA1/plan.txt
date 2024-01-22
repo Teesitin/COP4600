@@ -1,0 +1,6 @@
+Steps
+1. Extract Data into usable code.
+2. FCFS
+3. RR
+4. SJF
+5. Create Output
