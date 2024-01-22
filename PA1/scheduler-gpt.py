@@ -1,4 +1,3 @@
-# Extractor Data Into JSON
 import json
 import os
 
@@ -12,6 +11,8 @@ def parse_file(file_name):
                 data['runfor'] = int(line.split()[1])
             elif line.startswith('use'):
                 data['algorithm'] = line.split()[1]
+            elif line.startswith('quantum'):
+                data['quantum'] = int(line.split()[1])
             elif line.startswith('process'):
                 parts = line.split()
                 process_data = {
@@ -24,11 +25,10 @@ def parse_file(file_name):
 
 def main():
     script_dir = os.path.dirname(__file__)  # Get the directory where the script is located
-    file_name = os.path.join(script_dir, 'c2-fcfs.in')  # Construct the full path to the file
+    file_name = os.path.join(script_dir, 'c10-sjf.in')  # Change this to your file name
     data = parse_file(file_name)
     json_data = json.dumps(data, indent=4)
     print(json_data)
 
 if __name__ == "__main__":
     main()
-
