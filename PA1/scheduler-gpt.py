@@ -23,12 +23,17 @@ def parse_file(file_name):
                 data['processes'].append(process_data)
     return data
 
+def process_all_in_files(directory):
+    for filename in os.listdir(directory):
+        if filename.endswith(".in"):
+            file_path = os.path.join(directory, filename)
+            data = parse_file(file_path)
+            json_data = json.dumps(data, indent=4)
+            print(f"Processed {filename}:\n{json_data}\n")
+
 def main():
     script_dir = os.path.dirname(__file__)  # Get the directory where the script is located
-    file_name = os.path.join(script_dir, 'c10-sjf.in')  # Change this to your file name
-    data = parse_file(file_name)
-    json_data = json.dumps(data, indent=4)
-    print(json_data)
+    process_all_in_files(script_dir)
 
 if __name__ == "__main__":
     main()
