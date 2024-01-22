@@ -1,6 +1,6 @@
 Steps
 
-1. Extract Data into usable JSON.
+1. Extract Data into usable JSON. (DeLayne)
 2. FCFS
 3. RR
 4. SJF
