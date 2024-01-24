@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 def parse_file(file_name):
     data = {"processes": []}
@@ -24,8 +25,18 @@ def parse_file(file_name):
     return data
 
 def main():
-    script_dir = os.path.dirname(__file__)
-    file_name = os.path.join(script_dir, 'c2-fcfs.in')  # Change this to your file name
+    if len(sys.argv) != 2:
+        print("Usage: python scheduler-gpt.py <inputfile.in>")
+        sys.exit(1)
+
+    # Construct the full path of the file based on the script's location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_name = os.path.join(script_dir, sys.argv[1])
+
+    if not os.path.isfile(file_name):
+        print(f"File not found: {file_name}")
+        sys.exit(1)
+
     data = parse_file(file_name)
     json_data = json.dumps(data, indent=4)
     print(json_data)
