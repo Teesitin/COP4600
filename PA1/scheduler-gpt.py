@@ -3,7 +3,14 @@ import os
 import sys
 
 def parse_file(file_name):
-    data = {"processes": []}
+    data = {
+        "processes": [],
+        "algorithm": None,
+        "quantum": None,
+        "processcount": None,
+        "runfor": None
+    }
+
     with open(file_name, 'r') as file:
         for line in file:
             if line.startswith('processcount'):
@@ -22,6 +29,17 @@ def parse_file(file_name):
                     "burst": int(parts[6])
                 }
                 data['processes'].append(process_data)
+    
+    # Validate required parameters
+    if data['processcount'] is None:
+        raise ValueError("Error: Missing parameter processcount")
+    if data['runfor'] is None:
+        raise ValueError("Error: Missing parameter runfor")
+    if data['algorithm'] is None:
+        raise ValueError("Error: Missing parameter algorithm")
+    if data['algorithm'] == 'rr' and data['quantum'] is None:
+        raise ValueError("Error: Missing quantum parameter when use is 'rr'")
+
     return data
 
 def main():
@@ -29,17 +47,20 @@ def main():
         print("Usage: python scheduler-gpt.py <inputfile.in>")
         sys.exit(1)
 
-    # Construct the full path of the file based on the script's location
     script_dir = os.path.dirname(os.path.abspath(__file__))
     file_name = os.path.join(script_dir, sys.argv[1])
 
-    if not os.path.isfile(file_name):
-        print(f"File not found: {file_name}")
-        sys.exit(1)
+    try:
+        if not os.path.isfile(file_name):
+            print(f"File not found: {file_name}")
+            sys.exit(1)
 
-    data = parse_file(file_name)
-    json_data = json.dumps(data, indent=4)
-    print(json_data)
+        data = parse_file(file_name)
+        json_data = json.dumps(data, indent=4)
+        print(json_data)
+    except ValueError as e:
+        print(e)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
