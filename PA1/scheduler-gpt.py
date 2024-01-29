@@ -116,8 +116,9 @@ def fifo_scheduler(num_processes, process_names, total_cpu_time, arrival_time, b
 
         # ChatGPT created but manually reformatted
         for i in range(num_processes):
-            output_file.write(str(process_names[i]).rjust(2)+" wait "+str(wait_time[i]).rjust(3)+" turnaround "+str(turnaround_time[i]).rjust(3)+" response "+str(response_time[i]).rjust(3)+"\n")
-            html_file.write("<p><font color= 'deeppink'>"+str(process_names[i]).rjust(2)+" wait "+str(wait_time[i]).rjust(3)+" turnaround "+str(turnaround_time[i]).rjust(3)+" response "+str(response_time[i]).rjust(3)+"</font></p>")
+            if finish_time[i] != 0 and finish_time[i] < total_cpu_time:
+                output_file.write(str(process_names[i]).rjust(2)+" wait "+str(wait_time[i]).rjust(3)+" turnaround "+str(turnaround_time[i]).rjust(3)+" response "+str(response_time[i]).rjust(3)+"\n")
+                html_file.write("<p><font color= 'deeppink'>"+str(process_names[i]).rjust(2)+" wait "+str(wait_time[i]).rjust(3)+" turnaround "+str(turnaround_time[i]).rjust(3)+" response "+str(response_time[i]).rjust(3)+"</font></p>")
 
             
         # Manually created
