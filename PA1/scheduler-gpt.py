@@ -4,6 +4,15 @@ import json
 import os
 import sys
 
+class Process:
+    def __init__(self, process_id, arrival_time, burst_time):
+        self.process_id = process_id
+        self.arrival_time = arrival_time
+        self.burst_time = burst_time
+        self.remaining_time = burst_time
+        self.start_time = -1
+        self.finish_time = -1
+
 def parse_file(file_name):
     data = {
         "processes": [],
@@ -136,8 +145,87 @@ def metrics(arrival_time, start_time, finish_time):
     turnaround_time = finish_time - arrival_time
     response_time = start_time - arrival_time
     return wait_time, turnaround_time, response_time
+    
 
+def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
+    processes.sort(key=lambda x: (x.arrival_time, x.burst_time))
 
+    current_time = 0
+    completion_time = [0] * process_count
+    turnaround_time = [0] * process_count
+    waiting_time = [0] * process_count
+    response_time = [0] * process_count
+
+    print(f"{process_count} processes")
+    print(f"Using preemptive {scheduling_algorithm}")
+
+    timeline = set()
+    selected_processes = set()
+
+    while current_time < run_for or any(p.remaining_time > 0 for p in processes):
+        ready_processes = [p for p in processes if p.remaining_time > 0 and p.arrival_time <= current_time]
+
+        if not ready_processes:
+            timeline.add((current_time, None, 'idle'))
+            current_time += 1
+            continue
+
+        if scheduling_algorithm == "sjf":
+            ready_processes.sort(key=lambda x: x.remaining_time)
+        elif scheduling_algorithm == "fcfs":
+            ready_processes.sort(key=lambda x: x.arrival_time)
+        elif scheduling_algorithm == "rr":
+            ready_processes.sort(key=lambda x: x.arrival_time)
+        else:
+            print("Invalid scheduling algorithm.")
+            return
+
+        selected_process = ready_processes[0]
+
+        if selected_process.start_time == -1:
+            selected_process.start_time = current_time
+            response_time[int(selected_process.process_id[1:]) - 1] = current_time - selected_process.arrival_time
+
+        selected_process.remaining_time -= 1
+        current_time += 1
+
+        if selected_process.remaining_time == 0 and selected_process not in selected_processes:
+            selected_process.finish_time = current_time
+            completion_time[int(selected_process.process_id[1:]) - 1] = current_time
+            turnaround_time[int(selected_process.process_id[1:]) - 1] = selected_process.finish_time - selected_process.arrival_time
+            waiting_time[int(selected_process.process_id[1:]) - 1] = turnaround_time[int(selected_process.process_id[1:]) - 1] - selected_process.burst_time
+
+            timeline.add((current_time, selected_process, 'finished'))
+            selected_processes.add(selected_process)
+        elif selected_process not in selected_processes:
+            timeline.add((current_time, selected_process, 'selected'))
+
+    for process in processes:
+        if process.arrival_time == process.start_time:
+            timeline.add((process.arrival_time, process, 'arrived'))
+
+    # Print timeline with chronological order and unique events
+    current_event = None
+
+    print("\nTimeline:")
+    for time, event, event_type in sorted(timeline, key=lambda x: (x[0], x[2])):
+        if event_type == 'arrived':
+            print(f"Time  {event.arrival_time} : {event.process_id} arrived")
+        elif event_type == 'selected':
+            if event != current_event:
+                print(f"Time  {time} : {event.process_id} selected (burst {event.burst_time})")
+                current_event = event
+        elif event_type == 'finished':
+            print(f"Time  {time} : {event.process_id} finished")
+        elif event_type == 'idle':
+            print(f"Time  {time} : Idle")
+
+    # Calculate and print statistics
+    # print("\nStatistics:")
+    for i in range(process_count):
+        print(f"{processes[i].process_id} wait   {waiting_time[i]} turnaround   {turnaround_time[i]} response   {response_time[i]}")
+
+    print(f"\nFinished at time  {current_time}")
 
 def main():
     if len(sys.argv) != 2:
@@ -171,6 +259,15 @@ def main():
 
     if data["algorithm"]=="fcfs":
         fifo_scheduler(data["processcount"], process_names, data["runfor"], arrival_times, burst_times)
+
+
+    processes = []
+    for process in data["processes"]:
+        processes.append(Process(process["name"], process["arrival"], process["burst"]))
+        
+
+    if data["algorithm"]=="sjf":
+        preemptive_sjf(data["processcount"], data["runfor"], data["algorithm"], processes)
     
 
 if __name__ == "__main__":
