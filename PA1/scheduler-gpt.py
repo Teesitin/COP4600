@@ -175,23 +175,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-safdgassdfbghsdhfghfsshf
-
-
-
-487648486468468486
-
-
-
-ryrhdrhrdhdrhdhrrhd
-
-
-
-
-ersgsrhshrhsrsrhrsh'
-
-
-
-rhdtdjjddtjjdtdtjdtj
