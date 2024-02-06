@@ -68,7 +68,7 @@ def fifo_scheduler(num_processes, process_names, total_cpu_time, arrival_time, b
     current_process = 0
 
     # All html was edited ChatGPT code 
-    html_file = open("output.html","w")
+    html_file = open("output.out","w")
     html_file.write("<html><body>")
 
     with open("output.txt", "w") as output_file:
