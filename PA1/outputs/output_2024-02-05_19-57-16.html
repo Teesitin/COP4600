@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scheduling Algorithm Output</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .summary {
+            margin-top: 20px;
+        }
+        .summary th, .summary td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Scheduling Algorithm Simulation</h2>
+    <h3>Summary</h3>
+    <table class="summary">
+        <tr>
+            <th>Process Count</th>
+            <th>Algorithm</th>
+            <th>Quantum (if applicable)</th>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Round-Robin</td>
+            <td>3</td>
+        </tr>
+    </table>
+
+    <h3>Details</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Event</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Time 0</td><td>P1 arrived</td></tr><tr><td>Time 0</td><td>P1 selected (burst 5)</td></tr>
+        </tbody>
+    </table>
+
+    <h3>Statistics</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Process</th>
+                <th>Wait</th>
+                <th>Turnaround</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>P1</td><td>3</td><td>8</td><td>0</td></tr>
+        </tbody>
+    </table>
+</body>
+</html>
