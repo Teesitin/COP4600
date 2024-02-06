@@ -71,7 +71,7 @@ def fifo_scheduler(num_processes, process_names, total_cpu_time, arrival_time, b
     html_file = open("output.html","w")
     html_file.write("<html><body>")
 
-    with open("output.out", "w") as output_file:
+    with open("output.txt", "w") as output_file:
      
         # Manually created
         output_file.write(str(num_processes).rjust(3)+" processes\n")
