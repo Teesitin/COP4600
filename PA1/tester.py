@@ -3,21 +3,32 @@ from datetime import datetime
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 # Simulate data generation
-daobdfojnhbdrtfnobdftgoimnfxtnfh
+data = {
+    "process_count": "5",
+    "algorithm": "Round-Robin",
+    "quantum": "3",
+    "details": [
+        {"time": "0", "event": "P1 arrived"},
+        {"time": "0", "event": "P1 selected (burst 5)"},
+        # Add more event data...
+    ],
+    "statistics": [
+        {"process": "P1", "wait": "3", "turnaround": "8", "response": "0"},
+        {"process": "P1", "wait": "3", "turnaround": "8", "response": "0"},
+        {"process": "P1", "wait": "3", "turnaround": "8", "response": "0"},
+        {"process": "P1", "wait": "3", "turnaround": "8", "response": "0"},
+        {"process": "P1", "wait": "3", "turnaround": "8", "response": "0"},
+        {"process": "P1", "wait": "3", "turnaround": "8", "response": "0"},
+    ]
+}
 
+# Prepare details and statistics rows
+details_rows = ''.join([f'<tr><td>Time {d["time"]}</td><td>{d["event"]}</td></tr>' for d in data["details"]])
+statistics_rows = ''.join([f'<tr><td>{s["process"]}</td><td>{s["wait"]}</td><td>{s["turnaround"]}</td><td>{s["response"]}</td></tr>' for s in data["statistics"]])
 
-jmyrtdryjtjtypjymyj
-
-tyj
-jmyrtdryjtjtypjymyjjdty
-jmyrtdryjtjtypjymyjjyrtjdy
-jdtyk
-djty
-jmyrtdryjtjtypjymyjjdytyjdt,mophjtrm,raiserth
-jmyrtdryjtjtypjymyjr
-th
-jrht
-
+# Fill the template
+template_path = "template.html"
+with open(template_path, 'r') as file:
     template = file.read()
 
 template_filled = template.replace('{{ process_count }}', data["process_count"])
