@@ -234,16 +234,15 @@ def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
     print(f"\nFinished at time  {current_time}")
 
 def round_robin(processes, quantum, run_for):
-
-    output_lines = [""]
+    output_lines = [""] # attempt at troubleshooting
     current_time = 0
     ready_queue = []  # Initialize ready queue with no processes
     completed_processes = []
     last_event_time = 0
     output_lines = []
     previous_process = None  # Track previously selected process
-    quantum_remainder=0
-    current_process = None
+    quantum_remainder = 0 #added the quantum remainder
+    current_process = None # added the current process
 
     output_lines.append(str(len(processes)) + " processes\n")
     output_lines.append("Using Round-Robin\n")
@@ -252,74 +251,80 @@ def round_robin(processes, quantum, run_for):
     while current_time < run_for:
         # Check for arrival_times
         for process in processes:
-            if process.arrival_time == current_time:
-            
+            if process.arrival_time == current_time: # changed logicalparameter
                 ready_queue.append(process)
                 output_lines.append("Time " + str(current_time) + " : " + process.process_id + " arrived\n")
 
-             
-        if(not(current_process==None)):
-             if (current_process.remaining_burst==0):
+        if (not (current_process == None)): # changed logic to handle conditions
+            if (current_process.remaining_burst == 0): # cont.
 
                 output_lines.append("Time " + str(current_time) + " : " + current_process.process_id + " finished\n")
                 completed_processes.append(current_process)
                 current_process.turnaround_time = current_time - current_process.arrival_time
                 current_process.wait_time = current_process.turnaround_time - current_process.burst_time
-                quantum_remainder=0
-                current_process=None
+                quantum_remainder = 0
+                current_process = None
 
-             elif(quantum_remainder==0):
+            elif (quantum_remainder == 0):
                 ready_queue.append(current_process)
 
-        
         # Select process to execute
-        if ready_queue and quantum_remainder==0:
-            quantum_remainder=quantum
+        if ready_queue and quantum_remainder == 0: #changed logic for next block to ensure no clashing
+            quantum_remainder = quantum
             current_process = ready_queue.pop(0)
             if (current_process.response_time == -1):
                 current_process.response_time = current_time - current_process.arrival_time
             output_lines.append(
-                    "Time " + str(current_time) + " : " + current_process.process_id + " selected (burst_time " + str(
-                        current_process.remaining_burst) + ")\n")   
-        elif (len(ready_queue) == 0 and quantum_remainder==0):
+                "Time " + str(current_time) + " : " + current_process.process_id + " selected (burst_time " + str(
+                    current_process.remaining_burst) + ")\n")
+        elif (len(ready_queue) == 0 and quantum_remainder == 0):
             output_lines.append("Time " + str(current_time) + " : Idle\n")
             current_time += 1
             continue
 
-        current_time += 1 
+        current_time += 1
         current_process.remaining_burst -= 1
-        quantum_remainder -=1
-        
+        quantum_remainder -= 1
 
-    output_lines.append("Finished at time   "+str(current_time)+"\n\n")
+    output_lines.append("Finished at time   " + str(current_time) + "\n\n")
 
     # Output the completed processes with statistics
 
     for process in processes:
-        if(process.turnaround_time>0):
+        if (process.turnaround_time > 0):
             output_lines.append(
-                "Name: " + process.process_id +" - Wait Time: " + str(
-                    process.wait_time) + " - Turnaround Time: " + str(process.turnaround_time) + " - Response Time: " + str(
+                "Name: " + process.process_id + " - Wait Time: " + str(
+                    process.wait_time) + " - Turnaround Time: " + str(
+                    process.turnaround_time) + " - Response Time: " + str(
                     process.response_time) + "\n")
-            
-    for process in processes:  
-        if(process.turnaround_time==0):
-            output_lines.append(process.process_id+" did not finish\n")
 
-    
+    for process in processes:
+        if (process.turnaround_time == 0):
+            output_lines.append(process.process_id + " did not finish\n")
+
     # Write output to file
     with open("output.out", "w") as output_file:
         for line in output_lines:
             output_file.write(line)
-
-
-    colors=["blue","plum","darkgreen","indigo","violet"]
+ #customized output
+    colors = ["blue", "plum", "darkgreen", "indigo", "violet"]
     # Write output to HTML file
     with open("output.html", "w") as output_file:
-        output_file.write("<html>\n<body>\n")
-        for line, color in zip(output_lines, itertools.cycle(colors)):
-            output_file.write("<p><font color="+color+">" + line + "</p>\n")
-        output_file.write("</body>\n</html>")
+        output_file.write("<html>\n<head>\n")
+        output_file.write("<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link href=\"https://fonts.googleapis.com/css2?family=DotGothic16&display=swap\" rel=\"stylesheet\">")
+        output_file.write("<style>\n")
+        output_file.write("body { font-family: 'DotGothic16', arial, sans-serif; color: white; }\n")
+        output_file.write("table, th, td {\nborder: 0px solid; float: center;}\ntable {\n width: 50%;\n}\n")
+        output_file.write("</style>\n")
+        output_file.write("</head>\n")
+        output_file.write("<body>\n")
+
+        output_file.write("<center><table style=\"background-color: black;\">\n")
+
+        for line in output_lines:
+            output_file.write("<tr><td>\n" + line + "</td></tr>\n")
+
+        output_file.write("</table></center>\n</body>\n</html>")
 
     return completed_processes
 
