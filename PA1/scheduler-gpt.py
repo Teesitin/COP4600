@@ -3,15 +3,21 @@
 import json
 import os
 import sys
+import itertools
 
 class Process:
     def __init__(self, process_id, arrival_time, burst_time):
         self.process_id = process_id
         self.arrival_time = arrival_time
         self.burst_time = burst_time
+        self.remaining_burst = burst_time
         self.remaining_time = burst_time
         self.start_time = -1
         self.finish_time = -1
+        self.wait_time = 0
+        self.turnaround_time = 0
+        self.response_time = -1
+        self.has_arrived = False
 
 def parse_file(file_name):
     data = {
@@ -227,6 +233,96 @@ def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
 
     print(f"\nFinished at time  {current_time}")
 
+def round_robin(processes, quantum, run_for):
+
+    output_lines = [""]
+    current_time = 0
+    ready_queue = []  # Initialize ready queue with no processes
+    completed_processes = []
+    last_event_time = 0
+    output_lines = []
+    previous_process = None  # Track previously selected process
+    quantum_remainder=0
+    current_process = None
+
+    output_lines.append(str(len(processes)) + " processes\n")
+    output_lines.append("Using Round-Robin\n")
+    output_lines.append("Quantum   " + str(quantum) + "\n\n")
+
+    while current_time < run_for:
+        # Check for arrival_times
+        for process in processes:
+            if process.arrival_time == current_time:
+            
+                ready_queue.append(process)
+                output_lines.append("Time " + str(current_time) + " : " + process.process_id + " arrived\n")
+
+             
+        if(not(current_process==None)):
+             if (current_process.remaining_burst==0):
+
+                output_lines.append("Time " + str(current_time) + " : " + current_process.process_id + " finished\n")
+                completed_processes.append(current_process)
+                current_process.turnaround_time = current_time - current_process.arrival_time
+                current_process.wait_time = current_process.turnaround_time - current_process.burst_time
+                quantum_remainder=0
+                current_process=None
+
+             elif(quantum_remainder==0):
+                ready_queue.append(current_process)
+
+        
+        # Select process to execute
+        if ready_queue and quantum_remainder==0:
+            quantum_remainder=quantum
+            current_process = ready_queue.pop(0)
+            if (current_process.response_time == -1):
+                current_process.response_time = current_time - current_process.arrival_time
+            output_lines.append(
+                    "Time " + str(current_time) + " : " + current_process.process_id + " selected (burst_time " + str(
+                        current_process.remaining_burst) + ")\n")   
+        elif (len(ready_queue) == 0 and quantum_remainder==0):
+            output_lines.append("Time " + str(current_time) + " : Idle\n")
+            current_time += 1
+            continue
+
+        current_time += 1 
+        current_process.remaining_burst -= 1
+        quantum_remainder -=1
+        
+
+    output_lines.append("Finished at time   "+str(current_time)+"\n\n")
+
+    # Output the completed processes with statistics
+
+    for process in processes:
+        if(process.turnaround_time>0):
+            output_lines.append(
+                "Name: " + process.process_id +" - Wait Time: " + str(
+                    process.wait_time) + " - Turnaround Time: " + str(process.turnaround_time) + " - Response Time: " + str(
+                    process.response_time) + "\n")
+            
+    for process in processes:  
+        if(process.turnaround_time==0):
+            output_lines.append(process.process_id+" did not finish\n")
+
+    
+    # Write output to file
+    with open("output.out", "w") as output_file:
+        for line in output_lines:
+            output_file.write(line)
+
+
+    colors=["blue","plum","darkgreen","indigo","violet"]
+    # Write output to HTML file
+    with open("output.html", "w") as output_file:
+        output_file.write("<html>\n<body>\n")
+        for line, color in zip(output_lines, itertools.cycle(colors)):
+            output_file.write("<p><font color="+color+">" + line + "</p>\n")
+        output_file.write("</body>\n</html>")
+
+    return completed_processes
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python scheduler-gpt.py <inputfile.in>")
@@ -268,6 +364,10 @@ def main():
 
     if data["algorithm"]=="sjf":
         preemptive_sjf(data["processcount"], data["runfor"], data["algorithm"], processes)
+
+    if data["algorithm"]=="rr":
+        completed_processes = round_robin(processes, data['quantum'], data["runfor"])
+
     
 
 if __name__ == "__main__":
