@@ -40,7 +40,7 @@ def parse_file(file_name):
                     "burst": int(parts[6])
                 }
                 data['processes'].append(process_data)
-    
+
     # Validate required parameters
     if data['processcount'] is None:
         raise ValueError("Error: Missing parameter processcount")
@@ -67,12 +67,12 @@ def fifo_scheduler(num_processes, process_names, total_cpu_time, arrival_time, b
     notRunning = True
     current_process = 0
 
-    # All html was edited ChatGPT code 
+    # All html was edited ChatGPT code
     html_file = open("output.html","w")
     html_file.write("<html><body>")
 
     with open("output.txt", "w") as output_file:
-     
+
         # Manually created
         output_file.write(str(num_processes).rjust(3)+" processes\n")
         output_file.write("Using First-Come First-Served\n")
@@ -97,7 +97,7 @@ def fifo_scheduler(num_processes, process_names, total_cpu_time, arrival_time, b
 
             # ChatGPT created but manually reformatted and rearranged
             if len(process_queue) > 0:
-                if  notRunning == True: 
+                if  notRunning == True:
                     current_process = process_queue.pop(0)
                     start_time[current_process] = current_time
                     output_file.write("Time "+str(start_time[current_process]).rjust(3)+" : "+str(process_names[current_process]).rjust(2)+" selected (burst "+str(burst_time[current_process]).rjust(3)+")\n")
@@ -113,15 +113,15 @@ def fifo_scheduler(num_processes, process_names, total_cpu_time, arrival_time, b
                     output_file.write("Time "+str(current_time).rjust(3)+" : Idle\n")
                     html_file.write("<p><font color= 'navy'>"+"Time "+str(current_time).rjust(3)+" : Idle"+"</font></p>")
 
-            
+
 
             current_time += 1
 
-              
-        output_file.write(f"Finished at time  {total_cpu_time}\n\n") 
+
+        output_file.write(f"Finished at time  {total_cpu_time}\n\n")
         html_file.write("<p><font color= 'orangered'>"+"Finished at time  "+str(total_cpu_time)+"<br><br>"+"</font></p>")
-           
-       
+
+
 
         # ChatGPT created but manually reformatted
         for i in range(num_processes):
@@ -129,11 +129,11 @@ def fifo_scheduler(num_processes, process_names, total_cpu_time, arrival_time, b
                 output_file.write(str(process_names[i]).rjust(2)+" wait "+str(wait_time[i]).rjust(3)+" turnaround "+str(turnaround_time[i]).rjust(3)+" response "+str(response_time[i]).rjust(3)+"\n")
                 html_file.write("<p><font color= 'deeppink'>"+str(process_names[i]).rjust(2)+" wait "+str(wait_time[i]).rjust(3)+" turnaround "+str(turnaround_time[i]).rjust(3)+" response "+str(response_time[i]).rjust(3)+"</font></p>")
 
-            
+
         # Manually created
         for i in range(num_processes):
             if finish_time[i] == 0 or finish_time[i] >= total_cpu_time:
-                output_file.write(f"{process_names[i]} did not finish\n")  
+                output_file.write(f"{process_names[i]} did not finish\n")
                 html_file.write("<p><font color= 'crimson'>"+process_names[i]+" did not finish"+"</font></p>")
 
         html_file.write("</body></html>")
@@ -145,7 +145,7 @@ def metrics(arrival_time, start_time, finish_time):
     turnaround_time = finish_time - arrival_time
     response_time = start_time - arrival_time
     return wait_time, turnaround_time, response_time
-    
+
 
 def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
     processes.sort(key=lambda x: (x.arrival_time, x.burst_time))
@@ -156,76 +156,114 @@ def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
     waiting_time = [0] * process_count
     response_time = [0] * process_count
 
-    print(f"{process_count} processes")
-    print(f"Using preemptive {scheduling_algorithm}")
+
+    # html code is edited chatgpt code
+    html_output = open("output.html", "w")
+    html_output.write("<html><body>")
 
     timeline = set()
     selected_processes = set()
 
-    while current_time < run_for or any(p.remaining_time > 0 for p in processes):
-        ready_processes = [p for p in processes if p.remaining_time > 0 and p.arrival_time <= current_time]
+    # manually added code that opens the .out file and executes instructions in block then closes
+    with open("output.out", "w") as output_file:
 
-        if not ready_processes:
-            timeline.add((current_time, None, 'idle'))
+        # manually added code to write output to a .out file
+        output_file.write(str(process_count) + " processes\n")
+        output_file.write("Using " + str(scheduling_algorithm))
+
+        html_output.write("<p><font color = 'magenta'>" + str(process_count) + " processes" + "</font></p>")
+        html_output.write("<p><font color 'teal'>" + "Using " + str(scheduling_algorithm) + "</font><p>")
+
+        while current_time < run_for or any(p.remaining_time > 0 for p in processes):
+            ready_processes = [p for p in processes if p.remaining_time > 0 and p.arrival_time <= current_time]
+
+            if not ready_processes:
+                timeline.add((current_time, None, 'idle'))
+                current_time += 1
+                continue
+
+            if scheduling_algorithm == "sjf":
+                ready_processes.sort(key=lambda x: x.remaining_time)
+            elif scheduling_algorithm == "fcfs":
+                ready_processes.sort(key=lambda x: x.arrival_time)
+            elif scheduling_algorithm == "rr":
+                ready_processes.sort(key=lambda x: x.arrival_time)
+            else:
+                output_file.write("Invalid scheduling algorithm")
+                html_output.write("<p><font color = 'red'>" + "Invalid scheduling algorithm" + "</font></p>")
+
+                return
+
+            selected_process = ready_processes[0]
+
+            if selected_process.start_time == -1:
+                selected_process.start_time = current_time
+                response_time[int(selected_process.process_id[1:]) - 1] = current_time - selected_process.arrival_time
+
+            selected_process.remaining_time -= 1
             current_time += 1
-            continue
 
-        if scheduling_algorithm == "sjf":
-            ready_processes.sort(key=lambda x: x.remaining_time)
-        elif scheduling_algorithm == "fcfs":
-            ready_processes.sort(key=lambda x: x.arrival_time)
-        elif scheduling_algorithm == "rr":
-            ready_processes.sort(key=lambda x: x.arrival_time)
-        else:
-            print("Invalid scheduling algorithm.")
-            return
+            if selected_process.remaining_time == 0 and selected_process not in selected_processes:
+                selected_process.finish_time = current_time
+                completion_time[int(selected_process.process_id[1:]) - 1] = current_time
+                turnaround_time[int(selected_process.process_id[1:]) - 1] = selected_process.finish_time - selected_process.arrival_time
+                waiting_time[int(selected_process.process_id[1:]) - 1] = turnaround_time[int(selected_process.process_id[1:]) - 1] - selected_process.burst_time
 
-        selected_process = ready_processes[0]
+                timeline.add((current_time, selected_process, 'finished'))
+                selected_processes.add(selected_process)
+            elif selected_process not in selected_processes:
+                timeline.add((current_time, selected_process, 'selected'))
 
-        if selected_process.start_time == -1:
-            selected_process.start_time = current_time
-            response_time[int(selected_process.process_id[1:]) - 1] = current_time - selected_process.arrival_time
+        for process in processes:
+            if process.arrival_time == process.start_time:
+                timeline.add((process.arrival_time, process, 'arrived'))
 
-        selected_process.remaining_time -= 1
-        current_time += 1
 
-        if selected_process.remaining_time == 0 and selected_process not in selected_processes:
-            selected_process.finish_time = current_time
-            completion_time[int(selected_process.process_id[1:]) - 1] = current_time
-            turnaround_time[int(selected_process.process_id[1:]) - 1] = selected_process.finish_time - selected_process.arrival_time
-            waiting_time[int(selected_process.process_id[1:]) - 1] = turnaround_time[int(selected_process.process_id[1:]) - 1] - selected_process.burst_time
+        current_event = None
 
-            timeline.add((current_time, selected_process, 'finished'))
-            selected_processes.add(selected_process)
-        elif selected_process not in selected_processes:
-            timeline.add((current_time, selected_process, 'selected'))
+        output_file.write("\nTimeline:\n")
+        html_output.write("<p><font>" + "\nTimeline:\n" + "</font></p>")
 
-    for process in processes:
-        if process.arrival_time == process.start_time:
-            timeline.add((process.arrival_time, process, 'arrived'))
+        for time, event, event_type in sorted(timeline, key=lambda x: (x[0], x[2])):
+            if event_type == 'arrived':
 
-    # Print timeline with chronological order and unique events
-    current_event = None
+                output_file.write("Time\t" + str(event.arrival_time) + " : " + str(event.process_id) + " arrived\n")
+                html_output.write("<p><font color = 'blue'>" + "Time\t" + str(event.arrival_time) + " : " + str(event.process_id) + " arrived\n" + "</font></p>")
 
-    print("\nTimeline:")
-    for time, event, event_type in sorted(timeline, key=lambda x: (x[0], x[2])):
-        if event_type == 'arrived':
-            print(f"Time  {event.arrival_time} : {event.process_id} arrived")
-        elif event_type == 'selected':
-            if event != current_event:
-                print(f"Time  {time} : {event.process_id} selected (burst {event.burst_time})")
-                current_event = event
-        elif event_type == 'finished':
-            print(f"Time  {time} : {event.process_id} finished")
-        elif event_type == 'idle':
-            print(f"Time  {time} : Idle")
+            elif event_type == 'selected':
+                if event != current_event:
+                    output_file.write("Time\t" + str(time) + " : " + str(event.process_id) + " selected (burst\t" + str(event.burst_time) + ") \n")
+                    html_output.write("<p><font color = 'green'>" + "Time\t" + str(time) + " : " + str(event.process_id) + " selected (burst\t" + str(event.burst_time) + ") \n" + "</font></p>")
 
-    # Calculate and print statistics
-    # print("\nStatistics:")
-    for i in range(process_count):
-        print(f"{processes[i].process_id} wait   {waiting_time[i]} turnaround   {turnaround_time[i]} response   {response_time[i]}")
+                    current_event = event
+            elif event_type == 'finished':
+                output_file.write("Time\t" + str(time) + " : " + str(event.process_id) + " finished\n")
+                html_output.write("<p><font color = 'maroon'>" + "Time\t" + str(time) + " : " + str(event.process_id) + " finished\n" + "</font></p>")
 
-    print(f"\nFinished at time  {current_time}")
+            elif event_type == 'idle':
+                output_file.write("Time\t" + str(time) + " : Idle\n" )
+                html_output.write("<p><font color = 'red'>" + "Time\t" + str(time) + " : Idle\n" + "</font></p>")
+
+
+
+
+        output_file.write("\nFinished at time " + str(current_time))
+        html_output.write("<p><font color = 'orangered'>" + "\nFinished at time " + str(current_time) + "</font></p>")
+
+        # Calculate and print statistics
+        for i in range(process_count):
+            # manually added conditional that checks current process finishes
+            if selected_process.finish_time == 0 or selected_process.finish_time >= run_for:
+                output_file.write(str(process_id[i]) + "did not finish\n")
+                html_output.write("<p><font = 'crimson'>" + str(process_id[i]) + "did not finish\n")
+            output_file.write("\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]))
+            html_output.write("<p><font color = 'deeppink'>" + "\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]) + "</font></p>")
+
+        html_output.write("</body></html>")
+        html_output.close()
+
+
+
 
 def main():
     if len(sys.argv) != 2:
@@ -247,7 +285,7 @@ def main():
         print(e)
         sys.exit(1)
 
-    
+
     process_names = []
     arrival_times = []
     burst_times = []
@@ -264,11 +302,11 @@ def main():
     processes = []
     for process in data["processes"]:
         processes.append(Process(process["name"], process["arrival"], process["burst"]))
-        
+
 
     if data["algorithm"]=="sjf":
         preemptive_sjf(data["processcount"], data["runfor"], data["algorithm"], processes)
-    
+
 
 if __name__ == "__main__":
     main()
