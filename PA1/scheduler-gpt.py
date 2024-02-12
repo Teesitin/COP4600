@@ -260,8 +260,8 @@ def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
         for i in range(process_count):
             # manually added conditional that checks current process finishes
             if selected_process.finish_time == 0 or selected_process.finish_time >= run_for:
-                output_file.write(str(process_id[i]) + "did not finish\n")
-                html_output.write("<p><font = 'crimson'>" + str(process_id[i]) + "did not finish\n")
+                output_file.write(str(processes[i].process_id) + " did not finish\n")
+                html_output.write("<p><font = 'crimson'>" + str(processes[i].process_id) + " did not finish\n")
             output_file.write("\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]))
             html_output.write("<p><font color = 'deeppink'>" + "\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]) + "</font></p>")
 
