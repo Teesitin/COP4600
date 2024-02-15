@@ -175,12 +175,12 @@ def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
 
         # manually added code to write output to a .out file
         output_file.write(str(process_count) + " processes\n")
-        output_file.write("Using " + str(scheduling_algorithm))
+        output_file.write("Using preemptive Shortest Job First")
 
         html_output.write("<p><font color = 'magenta'>" + str(process_count) + " processes" + "</font></p>")
-        html_output.write("<p><font color 'teal'>" + "Using " + str(scheduling_algorithm) + "</font><p>")
+        html_output.write("<p><font color 'teal'>" + "Using preemptive Shortest Job First" + "</font><p>")
 
-        while current_time < run_for or any(p.remaining_time > 0 for p in processes):
+        while current_time < run_for: 
             ready_processes = [p for p in processes if p.remaining_time > 0 and p.arrival_time <= current_time]
 
             if not ready_processes:
@@ -227,8 +227,6 @@ def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
 
         current_event = None
 
-        output_file.write("\nTimeline:\n")
-        html_output.write("<p><font>" + "\nTimeline:\n" + "</font></p>")
 
         for time, event, event_type in sorted(timeline, key=lambda x: (x[0], x[2])):
             if event_type == 'arrived':
@@ -253,17 +251,27 @@ def preemptive_sjf(process_count, run_for, scheduling_algorithm, processes):
 
 
 
-        output_file.write("\nFinished at time " + str(current_time))
-        html_output.write("<p><font color = 'orangered'>" + "\nFinished at time " + str(current_time) + "</font></p>")
+        output_file.write("Finished at time " + str(current_time)+"\n")
+        html_output.write("<p><font color = 'orangered'>" + "Finished at time " + str(current_time)+"\n" + "</font></p>")
+
+        notFinished = []
 
         # Calculate and print statistics
         for i in range(process_count):
             # manually added conditional that checks current process finishes
-            if selected_process.finish_time == 0 or selected_process.finish_time >= run_for:
-                output_file.write(str(processes[i].process_id) + " did not finish\n")
-                html_output.write("<p><font = 'crimson'>" + str(processes[i].process_id) + " did not finish\n")
-            output_file.write("\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]))
-            html_output.write("<p><font color = 'deeppink'>" + "\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]) + "</font></p>")
+            if processes[i].finish_time <= 0 or processes[i].finish_time >= run_for:
+                notFinished.append(processes[i].process_id)
+            else:    
+                output_file.write("\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]))
+                html_output.write("<p><font color = 'deeppink'>" + "\n" + str(processes[i].process_id) + " wait\t" + str(waiting_time[i]) + " turnaround\t" + str(turnaround_time[i]) + " response\t" + str(response_time[i]) + "</font></p>")
+
+        output_file.write("\n")
+        html_output.write("\n")
+
+        # Manually created to print non finished processes
+        for x in notFinished:
+            output_file.write(str(x) + " did not finish\n")
+            html_output.write("<p><font = 'crimson'>" + str(x) + " did not finish\n")
 
         html_output.write("</body></html>")
         html_output.close()
