@@ -1,4 +1,9 @@
 # Amari Terry
+# Trevor Mongar
+# Delayne Russell
+# Erica Joseph
+
+
 
 import json
 import os
