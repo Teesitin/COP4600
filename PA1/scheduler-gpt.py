@@ -290,12 +290,13 @@ def round_robin(processes, quantum, run_for):
 
     # Output the completed processes with statistics
 
+    #Mannual edits were made for formatting
     for process in processes:
         if (process.turnaround_time > 0):
             output_lines.append(
-                "Name: " + process.process_id + " - Wait Time: " + str(
-                    process.wait_time) + " - Turnaround Time: " + str(
-                    process.turnaround_time) + " - Response Time: " + str(
+                process.process_id + " wait  " + str(
+                    process.wait_time) + " turnaround  " + str(
+                    process.turnaround_time) + " response  " + str(
                     process.response_time) + "\n")
 
     for process in processes:
